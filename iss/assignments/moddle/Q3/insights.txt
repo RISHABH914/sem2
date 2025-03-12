@@ -1,0 +1,15 @@
+following are the insights that we can get from the data that we imported
+
+1. 45.87500 degree celsius is the average maxmimum temperature among all the years 
+    whereas -0.55500 is the average minimum temperature among all the years
+
+2. 2013 was the year when the temperature rose to highest (i.e maximum temperature of 2013 was highest amonga all the years) with a temperature of 48 in amritsar
+    whereas 1997 was the year when the temperature dropped to lowest which was -1.80 in amritsar
+
+3. amritsar was the place where maximum temperature was recorded for maximum no of times
+    also amristsar was the place where minimum temperature was recorded maixmum no of times
+
+4. 1995 was the year when temperature fluctuated most i.e difference between max and min temperature during was the year was highest
+    whereas 2016 was the year when the temperature fluctuated least i.e difference between max and min temp during the year was lowest
+
+5. 46.4300 is the average variation of temperature across all the years given in the data

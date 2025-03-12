@@ -1,0 +1,94 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
+#define LED_PIN 2  // Use GPIO 2 for built-in LED (modify if using an external LED)
+
+// WiFi Credentials
+const char* ssid = "esp";  // Replace with your WiFi SSID
+const char* password = "helloworld";  // Replace with your WiFi Password
+
+// OM2M Server Details
+const char* om2m_server = "10.2.135.254";  // Replace with your system's IP
+const int om2m_port = 5089;
+const char* resource_url = "/~/in-cse/in-name/AE-TEST/Node-1/Data/la";
+
+// Threshold Values
+const int CPU_THRESHOLD = 50;  // Adjust based on your testing
+const int RAM_THRESHOLD = 70;
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+
+    // Connect to WiFi
+    Serial.print("Connecting to WiFi...");
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        Serial.print(".");
+        delay(1000);
+    }
+
+    Serial.println("\nConnected to WiFi!");
+}
+
+void loop() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        String url = "http://" + String(om2m_server) + ":" + String(om2m_port) + String(resource_url);
+
+        http.begin(url.c_str());
+        http.addHeader("X-M2M-Origin", "admin:admin");  // Authentication header
+        http.addHeader("Accept", "application/json");
+
+        int httpCode = http.GET();
+
+        if (httpCode == 200) {
+            String payload = http.getString();
+            Serial.println("Data received: " + payload);
+
+            // Parse JSON
+            StaticJsonDocument<512> doc;
+            DeserializationError error = deserializeJson(doc, payload);
+
+            if (!error) {
+                String content = doc["m2m:cin"]["con"];  // Extract "con" field
+                Serial.println("Extracted content: " + content);
+
+                // Expected format: [timestamp, CPU usage, RAM usage]
+                int timestamp, cpu_usage, ram_usage;
+                sscanf(content.c_str(), "[%d, %d, %d]", &timestamp, &cpu_usage, &ram_usage);
+
+                Serial.print("CPU Usage: ");
+                Serial.print(cpu_usage);
+                Serial.print("%, RAM Usage: ");
+                Serial.print(ram_usage);
+                Serial.println("%");
+
+                // Check if threshold exceeded
+                if (cpu_usage > CPU_THRESHOLD || ram_usage > RAM_THRESHOLD) {
+                    Serial.println("Threshold exceeded! Blinking LED...");
+                    for (int i = 0; i < 10; i++) {  // Blink LED 10 times
+                        digitalWrite(LED_PIN, HIGH);
+                        delay(200);
+                        digitalWrite(LED_PIN, LOW);
+                        delay(200);
+                    }
+                }
+            } else {
+                Serial.println("JSON Parsing failed!");
+            }
+        } else {
+            Serial.print("HTTP GET request failed! Code: ");
+            Serial.println(httpCode);
+        }
+
+        http.end();
+    } else {
+        Serial.println("WiFi not connected!");
+    }
+
+    delay(5000);  // Fetch data every 5 seconds
+}

@@ -1,0 +1,1 @@
+res[size]=max(res[size],arr[i]);
