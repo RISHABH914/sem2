@@ -61,6 +61,8 @@
     "*.ndjson": "jsonl",
     "*.dbclient-js": "javascript",
     "array": "c",
-    "string": "c"
+    "string": "c",
+    "deque": "cpp",
+    "vector": "cpp"
   }
 }

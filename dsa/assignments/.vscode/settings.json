@@ -63,6 +63,11 @@
     "A1_NEW.C": "cpp",
     "bitset": "c",
     "chrono": "c",
-    "algorithm": "c"
+    "algorithm": "c",
+    "array": "cpp",
+    "deque": "cpp",
+    "forward_list": "cpp",
+    "list": "cpp",
+    "vector": "cpp"
   }
 }

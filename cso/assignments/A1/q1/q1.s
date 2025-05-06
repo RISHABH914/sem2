@@ -1,52 +1,49 @@
 .section .text
-.global find
+.global find_lonely_number
 
-#%r8 for storing remaining size
-#%r9 for storing the element pointer
-find:
-    imulq $3,%rsi
-    addq $1,%rsi
-    movq %rsi,%r8
-    movq %rdi,%r9
+# rdi = pointer to arr
+# rsi = pointer to fre
+# rdx = size of arr
+#r8 is pointer to arr,r9 pointer to freq,r10 to size counter
+find_lonely_number:
 
-.outerloop:
-    cmpq $0,%r8
-    je .done
-    movq $0,%r10            #for storing count of that particular number
-    movq %rdi,%r11             #r11 for storing start of array for inner loop
-    movq %rsi,%r12                #size for inner loop
-    jmp .innerloop
+    movq %rdi, %r8              #storing r8 to point to arr
+    movq %rsi, %r9              #stroing r9 to pointer to freq
+    movq %rdx, %r10             #storing r10 as size of the remaining array
 
+    # First Loop: make the frequency array
+.build_freq:
+    cmpq $0, %r10
+    je .search_lonely    # If size == 0, move to .search_lonely
 
-.innerloop:
-    cmpq $0,%r12
-    je .innercomplete
-    movq (%r11),%r13
-    cmpq %r13,(%r9)
-    je .add
+    movq (%r8), %rax    # storing arr[i] to rax
+    leaq (%r9, %rax, 8), %rcx  # storing Address of freq[arr[i]] in rcx
 
-    decq %r12
-    addq $8,%r11
-    jmp .innerloop
+    incq (%rcx)         # Increment frequency count at freq[arr[i]]
 
-.innercomplete:
-    decq %r8
-    addq $8,%r9
-    jmp .outerloop
+    addq $8, %r8        # Move to next element in arr
+    decq %r10           # Decrement size counter
+    jmp .build_freq
 
-    
-.add:
-    incq %r10
-    cmpq $2,%r10
-    jge .giveres
-    addq $8,%r11
-    decq %r12
-    jmp .innerloop
+    # for finding the lonely number having frequency as 1
+.search_lonely:
+    movq $0, %r10       # Reset index counter
 
-.giveres:
-    movq (%r9),%rax
-    ret
+.find_loop:
+    cmpq $10000, %r10
+    jge .done           # If index >= 10000, stop since the size of frequeny array is only 10000 since the elements can't be bigger than this
+
+    movq (%r9, %r10, 8), %rax   # storing freq[index] into rax
+    cmpq $1, %rax                # Check if frequency is exactly 1
+    jne .next_index               # If not, continue searching
+
+    movq %r10, %rax   # Store lonely number in rax
+    jmp .done         # Found it, exit
+
+.next_index:
+    incq %r10          # Move to next index
+    jmp .find_loop
 
 .done:
-    movq $-1,%rax
     ret
+

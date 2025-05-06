@@ -20,7 +20,7 @@ solve:
 .false:
     movq $0,%rax
     ret
-    
+
 .continue:
     decq %r9
     incq %r10
