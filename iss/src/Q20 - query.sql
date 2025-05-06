@@ -1,5 +1,0 @@
-SELECT E.Fname, E.Lname 
-FROM EMPLOYEE E
-JOIN DEPARTMENT D ON E.Ssn = D.Mgr_ssn
-WHERE D.Dnumber = (SELECT Dno FROM EMPLOYEE 
-                   GROUP BY Dno ORDER BY COUNT(*) DESC LIMIT 1);
